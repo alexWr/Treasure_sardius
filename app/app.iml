@@ -90,5 +90,7 @@
     <orderEntry type="library" exported="" name="appcompat-v7-22.1.1" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.1.1" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.1.1" level="project" />
+    <orderEntry type="module" module-name="AndEngine-GLES2" exported="" />
+    <orderEntry type="module" module-name="AndEnginePhysicsBox2DExtension-GLES2" exported="" />
   </component>
 </module>
