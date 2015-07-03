@@ -17,9 +17,13 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.ITexture;
+import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.bitmap.BitmapTexture;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegionFactory;
+import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.adt.io.in.IInputStreamOpener;
 import org.andengine.util.color.Color;
@@ -27,7 +31,6 @@ import org.andengine.util.debug.Debug;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Random;
 
 
@@ -36,13 +39,19 @@ public class MainActivity extends SimpleBaseGameActivity {
     public int CAMERA_WIDTH;
     public int CAMERA_HEIGHT;
     public static int countRectHeight,countRectWidth;
+    public String lightningLocation;
+    public int lightHeight,lighWidth;
+    int temp,start_position;
     Rectangle GridRect[][];
     static ITextureRegion red_ruby,diamond,blue_ruby,coin,purple_ruby;
-    static Sprite sprite_red,sprite_blue,sprite_purple,sprite_coin,sprite_diamond;
-    ArrayList<Sprite> arraySprite=new ArrayList<>();
+    private BitmapTextureAtlas texLight;
+    static public TiledTextureRegion regLight;
+    private static int   SPR_COLUMN  = 8;
+    private static int   SPR_ROWS  = 1;
     Text bitmapText;
     long scoreSum;
     Font font;
+    static int rectSize,rectTopMargin,rectBottomMargin,textBottomMargin,RectBetweenRect,textSize,textMarginLeft;
     int i=0,j=0,k=0,m=0;
     Scene scene;
     @Override
@@ -78,6 +87,10 @@ public class MainActivity extends SimpleBaseGameActivity {
                     return getAssets().open("gfx/Diamond-icon.png");
                 }
             });
+            texLight = new BitmapTextureAtlas(this.getTextureManager(), lightHeight, lighWidth, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+            regLight = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(texLight, this.getAssets(),
+                    lightningLocation, 0, 0, SPR_COLUMN, SPR_ROWS);
+            texLight.load();
             blueRubyTexture.load();
             redRubyTexture.load();
             purpleRubyTexture.load();
@@ -98,18 +111,21 @@ public class MainActivity extends SimpleBaseGameActivity {
         scene=new Scene();
         scene.setBackground(new Background(new Color(0.05f, 0.7f, 0.9f)));
         font = FontFactory.createFromAsset(this.getFontManager(), this.getTextureManager(), 256, 256, this.getAssets(),
-                "font/smoothie.otf", 40, true, android.graphics.Color.BLACK);
+                "font/smoothie.otf", textSize, true, android.graphics.Color.BLACK);
         font.load();
-        bitmapText=new Text(100,CAMERA_HEIGHT-170 , font,"SCORES:",50,getVertexBufferObjectManager());
+        bitmapText=new Text(textMarginLeft,CAMERA_HEIGHT-textBottomMargin, font,"SCORES:",textSize,getVertexBufferObjectManager());
         scene.attachChild(bitmapText);
-        countRectWidth=CAMERA_WIDTH/70;
-        countRectHeight=(CAMERA_HEIGHT-210)/70;
+        temp=CAMERA_WIDTH/rectSize;
+        countRectWidth=(CAMERA_WIDTH-(temp*RectBetweenRect))/rectSize;
+        countRectHeight=(CAMERA_HEIGHT-rectBottomMargin)/rectSize;
+        start_position=((CAMERA_WIDTH-(temp*RectBetweenRect)) % rectSize) - countRectWidth;
+        if(start_position<0)
+            start_position=0;
         GridRect=new Rectangle[countRectHeight][countRectWidth];
         for(j=0,m=0;j<countRectHeight;j++) {
             for (i = 0, k = 0; i < countRectWidth; i++) {
-                GridRect[j][i]=new Rectangle((CAMERA_WIDTH % 70 - countRectWidth) / 2 + k, 50+m, 70, 70, getVertexBufferObjectManager()){
-                    private final int id2 = i;
-                    private final int id1 = j;
+                GridRect[j][i]=new Rectangle((((CAMERA_WIDTH-(temp*RectBetweenRect)) % rectSize) - countRectWidth) / 2 + k,
+                        rectTopMargin+m, rectSize, rectSize, getVertexBufferObjectManager()){
                     private final int col = j;
                     private final int row = i;
                     @Override
@@ -124,55 +140,45 @@ public class MainActivity extends SimpleBaseGameActivity {
                                     if (x.equals(y)) {
                                         count++;
                                         GridRect[l][o].setColor(1, 1, 1);
-                                        if((l == col+1)&&(o == id2)){
-                                            ChangeElement(GridRect[l][o], GridRect[id1][id2]);
-                                            RubyRect rc=new RubyRect(id1,id2,GridRect,scoreSum,getVertexBufferObjectManager());
-                                            rc.checkLineThreeRubyTop(bitmapText);
-                                            scoreSum=rc.getScore();
-                                            /*if(id1==0 || id2==0) {
-                                                checkLineThreeRuby(GridRect[id1][id2], GridRect[id1 - 1][id2], GridRect[id1 - 2][id2]);
-                                                checkLineThreeRuby(GridRect[id1][id2], GridRect[id1][id2 + 1], GridRect[id1][id2 - 1]);
-                                                checkLineThreeRuby(GridRect[id1][id2], GridRect[id1][id2 + 1], GridRect[id1][id2 + 2]);
-                                                checkLineThreeRuby(GridRect[id1][id2], GridRect[id1][id2 - 1], GridRect[id1][id2 - 2]);
-                                            }
-                                            else{
-                                                checkLineThreeRuby(GridRect[id1][id2], GridRect[id1 - 1][id2], GridRect[id1 - 2][id2]);
-                                                checkLineThreeRuby(GridRect[id1][id2], GridRect[id1][id2 + 1], GridRect[id1][id2 - 1]);
-                                                checkLineThreeRuby(GridRect[id1][id2], GridRect[id1][id2 + 1], GridRect[id1][id2 + 2]);
-                                                checkLineThreeRuby(GridRect[id1][id2], GridRect[id1][id2 - 1], GridRect[id1][id2 - 2]);
-                                            }*/
-
+                                        if((l == col+1)&&(o == row)){
+                                            ChangeElement(GridRect[l][o], GridRect[col][row]);
+                                            TopThreeLineRuby topThree=new TopThreeLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
+                                            topThree.checkLineThreeRubyTop(bitmapText,GridRect);
+                                            scoreSum=topThree.getScore();
                                         }
-                                        if((l == col-1)&&(o == id2)){
-                                            ChangeElement(GridRect[l][o], GridRect[id1][id2]);
+                                        if((l == col-1)&&(o == row)){//bottom
+                                            ChangeElement(GridRect[l][o], GridRect[col][row]);
                                         }
-                                        if((o == row+1)&&(l == id1)){
-                                            ChangeElement(GridRect[l][o],GridRect[id1][row]);
+                                        if((o == row+1)&&(l == col)){//left
+                                            ChangeElement(GridRect[l][o],GridRect[col][row]);
                                         }
-                                        if((o == row-1)&&(l == id1)){
-                                            ChangeElement(GridRect[l][o],GridRect[id1][row]);
+                                        if((o == row-1)&&(l == col)){//right
+                                            ChangeElement(GridRect[l][o],GridRect[col][row]);
+                                            RightThreeLineRuby rightThree=new RightThreeLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
+                                            rightThree.checkLineThreeRubyRight(bitmapText,GridRect);
+                                            scoreSum=rightThree.getScore();
                                         }
                                     }
                                 }
                             }
                             if(count==0){
-                                GridRect[id1][id2].setColor(0, 0, 0);
+                                GridRect[col][row].setColor(0, 0, 0);
                             }
                             if(count==1){
-                                GridRect[id1][id2].setColor(1, 1, 1);
+                                GridRect[col][row].setColor(1, 1, 1);
                             }
                             if(count>1){
-                                GridRect[id1][id2].setColor(1, 1, 1);
+                                GridRect[col][row].setColor(1, 1, 1);
                             }
                         }
                         return true;
                     }
                 };
-                AllSpriteInRect(randInt(1,5),GridRect[j][i],scene);
+                AllSpriteInRect(randInt(1,100),GridRect[j][i],scene);
                 scene.registerTouchArea(GridRect[j][i]);
-                k += 72;
+                k += (rectSize+RectBetweenRect);
             }
-            m+=72;
+            m+=(rectSize+RectBetweenRect);
         }
         return scene;
     }
@@ -188,56 +194,79 @@ public class MainActivity extends SimpleBaseGameActivity {
     }
     public Sprite CreateNewRubySprite(ITextureRegion region,int width,int height){
         Sprite sprite = new Sprite(width,height,region,getVertexBufferObjectManager());
-        sprite.setHeight(70);
-        sprite.setWidth(70);
+        sprite.setHeight(rectSize);
+        sprite.setWidth(rectSize);
         return sprite;
     }
     public void AllSpriteInRect(int num,Rectangle rect,Scene scene){
+        Sprite sprite;
         switch(num){
             case 1:
-                sprite_red=CreateNewRubySprite(red_ruby,0,0);
-                sprite_red.setTag(1);
-                rect.attachChild(sprite_red);
-                //scene.attachChild(GridRect[j][i]);
-                scene.attachChild(rect);
+                sprite=CreateNewRubySprite(red_ruby,0,0);
+                sprite.setTag(1);
                 break;
             case 2:
-                sprite_blue=CreateNewRubySprite(blue_ruby,0,0);
-                sprite_blue.setTag(2);
-                arraySprite.add(sprite_blue);
-                rect.attachChild(sprite_blue);
-                //scene.attachChild(GridRect[j][i]);
-                scene.attachChild(rect);
+                sprite=CreateNewRubySprite(blue_ruby,0,0);
+                sprite.setTag(2);
                 break;
             case 3:
-                sprite_diamond=CreateNewRubySprite(diamond,0,0);
-                sprite_diamond.setTag(3);
-                arraySprite.add(sprite_diamond);
-                rect.attachChild(sprite_diamond);
-                //scene.attachChild(GridRect[j][i]);
-                scene.attachChild(rect);
+                sprite=CreateNewRubySprite(diamond,0,0);
+                sprite.setTag(3);
                 break;
             case 4:
-                sprite_coin=CreateNewRubySprite(coin,0,0);
-                sprite_coin.setTag(4);
-                arraySprite.add(sprite_coin);
-                rect.attachChild(sprite_coin);
-                //scene.attachChild(GridRect[j][i]);
-                scene.attachChild(rect);
+                sprite=CreateNewRubySprite(coin,0,0);
+                sprite.setTag(4);
                 break;
             case 5:
-                sprite_purple=CreateNewRubySprite(purple_ruby,0,0);
-                sprite_purple.setTag(5);
-                arraySprite.add(sprite_purple);
-                rect.attachChild(sprite_purple);
-                //scene.attachChild(GridRect[j][i]);
-                scene.attachChild(rect);
+                sprite=CreateNewRubySprite(purple_ruby,0,0);
+                sprite.setTag(5);
                 break;
+            default:
+                sprite=CreateNewRubySprite(purple_ruby,0,0);
+                sprite.setTag(5);
         }
+        rect.attachChild(sprite);
+        scene.attachChild(rect);
     }
     public static int randInt(int min, int max) {
         Random rand = new Random();
-        return rand.nextInt((max - min) + 1) + min;
+        int rando=rand.nextInt((max - min) + 1) + min;
+        if((rando<=10)||(rando>=50&&rando<=60))
+            return 1;
+        if((rando>10&&rando<=20)||(rando>60&&rando<=70))
+            return 2;
+        if((rando>20&&rando<=30)||(rando>70&&rando<=80))
+            return 3;
+        if((rando>30&&rando<=40)||(rando>80&&rando<=90))
+            return 4;
+        if((rando>40&&rando<50)||rando>90)
+            return 5;
+        else{ System.out.println("else return 3");
+            return 3;}
+    }
+    public boolean DetermineNeighborRubyThree(Rectangle rect[][],int col, int row){
+        boolean bool=false;
+        if((col-2>0))
+            if(rect[col][row].getLastChild().getTag()==rect[col-1][row].getLastChild().getTag()&&
+                    rect[col-1][row].getLastChild().getTag()==rect[col-2][row].getLastChild().getTag())
+                bool=true;
+        if(row+2<(countRectWidth-1))
+            if(rect[col][row].getLastChild().getTag()==rect[col][row+1].getLastChild().getTag()&&
+                    rect[col][row+1].getLastChild().getTag()==rect[col][row+2].getLastChild().getTag())
+                bool=true;
+        if(row-2>0)
+            if(rect[col][row].getLastChild().getTag()==rect[col][row-1].getLastChild().getTag()&&
+                    rect[col][row-1].getLastChild().getTag()==rect[col][row-2].getLastChild().getTag())
+                bool=true;
+        if(row-1>0)
+            if(rect[col][row].getLastChild().getTag()==rect[col][row-1].getLastChild().getTag()&&
+                    rect[col][row-1].getLastChild().getTag()==rect[col][row+1].getLastChild().getTag())
+                bool=true;
+        if(row+1<countRectWidth)
+            if(rect[col][row].getLastChild().getTag()==rect[col][row-1].getLastChild().getTag()&&
+                    rect[col][row-1].getLastChild().getTag()==rect[col][row+1].getLastChild().getTag())
+                bool=true;
+        return bool;
     }
     @Override
     public EngineOptions onCreateEngineOptions() {
@@ -245,9 +274,73 @@ public class MainActivity extends SimpleBaseGameActivity {
         WindowManager wm = (WindowManager)getSystemService(WINDOW_SERVICE);
         wm.getDefaultDisplay().getMetrics(displayMetrics);
         wm.getDefaultDisplay().getRotation();
+        ScreenSize(displayMetrics);
         CAMERA_WIDTH = displayMetrics.widthPixels;
         CAMERA_HEIGHT = displayMetrics.heightPixels;
         final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
         return new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
+    }
+    public boolean ScreenSize(DisplayMetrics dm){
+        float density=dm.density;
+        if (density >= 4.0) {
+
+            lightningLocation="gfx/lightningXXXHDPI.png";
+            lightHeight=512;
+            lighWidth=200;
+            rectSize=200;
+            rectTopMargin=180;
+            rectBottomMargin=rectSize*3;
+            textBottomMargin=rectSize*2;
+            RectBetweenRect=15;
+            textMarginLeft=300;
+            textSize=120;
+            return true;
+        }
+        if (density >= 3.0) {
+
+            lightningLocation="gfx/lightningXXHDPI.png";
+            lightHeight=512;
+            lighWidth=150;
+            rectSize=150;
+            rectTopMargin=130;
+            rectBottomMargin=rectSize*3;
+            textBottomMargin=rectSize*2;
+            RectBetweenRect=10;
+            textMarginLeft=200;
+            textSize=100;
+            return true;
+        }
+        if (density >= 2.0) {
+
+            lightningLocation="gfx/lightningXHDPI.png";
+            lightHeight=512;
+            lighWidth=100;
+            rectSize=100;
+            rectTopMargin=80;
+            rectBottomMargin=rectSize*3;
+            textBottomMargin=rectSize*2;
+            RectBetweenRect=5;
+            textMarginLeft=150;
+            textSize=80;
+            return true;
+        }
+        if (density >= 1.5) {
+
+            lightningLocation="gfx/lightningHDPI.png";
+            lightHeight=256;
+            lighWidth=70;
+            rectSize=70;
+            rectTopMargin=50;
+            rectBottomMargin=70*3;
+            textBottomMargin=160;
+            RectBetweenRect=2;
+            textMarginLeft=100;
+            textSize=50;
+            return true;
+        }
+        else {
+            System.out.println("ldpi");
+            return false;
+        }
     }
 }
