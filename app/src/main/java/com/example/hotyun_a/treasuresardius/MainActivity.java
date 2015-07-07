@@ -148,9 +148,15 @@ public class MainActivity extends SimpleBaseGameActivity {
                                         }
                                         if((l == col-1)&&(o == row)){//bottom
                                             ChangeElement(GridRect[l][o], GridRect[col][row]);
+                                            BottomThreeLineRuby bottomThree=new BottomThreeLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
+                                            bottomThree.checkLineThreeRubyBottom(bitmapText,GridRect);
+                                            scoreSum=bottomThree.getScore();
                                         }
                                         if((o == row+1)&&(l == col)){//left
                                             ChangeElement(GridRect[l][o],GridRect[col][row]);
+                                            LeftThreeLineRuby leftThree=new LeftThreeLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
+                                            leftThree.checkLineThreeRubyLeft(bitmapText,GridRect);
+                                            scoreSum=leftThree.getScore();
                                         }
                                         if((o == row-1)&&(l == col)){//right
                                             ChangeElement(GridRect[l][o],GridRect[col][row]);

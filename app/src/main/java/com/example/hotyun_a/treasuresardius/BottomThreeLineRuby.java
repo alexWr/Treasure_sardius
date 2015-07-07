@@ -10,29 +10,28 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import java.util.ArrayList;
 
-public class TopThreeLineRuby {
-
+public class BottomThreeLineRuby {
     public long scores;
     VertexBufferObjectManager vObject;
     int col,row;
     private int isSprite;
 
-    public TopThreeLineRuby(long score,int col,int row,VertexBufferObjectManager vb ){
+    public BottomThreeLineRuby(long score,int col,int row,VertexBufferObjectManager vb ){
         this.scores=score;
         this.vObject=vb;
         this.col=col;
         this.row=row;
     }
-    public boolean checkLineThreeRubyTop(Text bitmapText,Rectangle masRect[][]){
-        if(col!=0&&col!=1&&row!=0&&row!=(MainActivity.countRectWidth-1)){
-            if ((masRect[col][row].getLastChild().getTag() == masRect[col-1][row].getLastChild().getTag()) &&
-                    (masRect[col-1][row].getLastChild().getTag() == masRect[col-2][row].getLastChild().getTag())&&
+    public boolean checkLineThreeRubyBottom(Text bitmapText,Rectangle masRect[][]){
+        if(col!=(MainActivity.countRectHeight-1)&&col!=(MainActivity.countRectHeight-2)&&row!=0&&row!=(MainActivity.countRectWidth-1)){
+            if ((masRect[col][row].getLastChild().getTag() == masRect[col+1][row].getLastChild().getTag()) &&
+                    (masRect[col+1][row].getLastChild().getTag() == masRect[col+2][row].getLastChild().getTag())&&
                     (masRect[col][row].getLastChild().getTag() == masRect[col][row+1].getLastChild().getTag())&&
                     masRect[col][row].getLastChild().getTag() == masRect[col][row-1].getLastChild().getTag()) {
                 isSprite=masRect[col][row].getLastChild().getTag();
                 masRect[col][row].getLastChild().detachSelf();
-                masRect[col-1][row].getLastChild().detachSelf();
-                masRect[col-2][row].getLastChild().detachSelf();
+                masRect[col+1][row].getLastChild().detachSelf();
+                masRect[col+2][row].getLastChild().detachSelf();
                 masRect[col][row+1].getLastChild().detachSelf();
                 masRect[col][row-1].getLastChild().detachSelf();
                 scores += 500;
@@ -41,9 +40,9 @@ public class TopThreeLineRuby {
                 return true;
             }
         }
-        if(col!=0&&col!=1&&row!=0&&row!=1){
-            if ((masRect[col][row].getLastChild().getTag() == masRect[col-1][row].getLastChild().getTag()) &&
-                    (masRect[col-1][row].getLastChild().getTag() == masRect[col-2][row].getLastChild().getTag())&&
+        if(col!=(MainActivity.countRectHeight-1)&&col!=(MainActivity.countRectHeight-2)&&row!=0&&row!=1){
+            if ((masRect[col][row].getLastChild().getTag() == masRect[col+1][row].getLastChild().getTag()) &&
+                    (masRect[col+1][row].getLastChild().getTag() == masRect[col+2][row].getLastChild().getTag())&&
                     (masRect[col][row].getLastChild().getTag() == masRect[col][row-1].getLastChild().getTag())&&
                     masRect[col][row].getLastChild().getTag() == masRect[col][row-2].getLastChild().getTag()) {
                 isSprite=masRect[col][row].getLastChild().getTag();
@@ -58,15 +57,16 @@ public class TopThreeLineRuby {
                 return true;
             }
         }
-        if(col!=0&&col!=1&&row!=(MainActivity.countRectWidth-1)&&row!=(MainActivity.countRectWidth-2)){
-            if ((masRect[col][row].getLastChild().getTag() == masRect[col-1][row].getLastChild().getTag()) &&
-                    (masRect[col-1][row].getLastChild().getTag() == masRect[col-2][row].getLastChild().getTag())&&
+        if(col!=(MainActivity.countRectHeight-1)&&col!=(MainActivity.countRectHeight-2)&&
+                row!=(MainActivity.countRectWidth-1)&&row!=(MainActivity.countRectWidth-2)){
+            if ((masRect[col][row].getLastChild().getTag() == masRect[col+1][row].getLastChild().getTag()) &&
+                    (masRect[col+1][row].getLastChild().getTag() == masRect[col+2][row].getLastChild().getTag())&&
                     (masRect[col][row].getLastChild().getTag() == masRect[col][row+1].getLastChild().getTag())&&
                     masRect[col][row].getLastChild().getTag() == masRect[col][row+2].getLastChild().getTag()) {
                 isSprite=masRect[col][row].getLastChild().getTag();
                 masRect[col][row].getLastChild().detachSelf();
-                masRect[col-1][row].getLastChild().detachSelf();
-                masRect[col-2][row].getLastChild().detachSelf();
+                masRect[col+1][row].getLastChild().detachSelf();
+                masRect[col+2][row].getLastChild().detachSelf();
                 masRect[col][row+1].getLastChild().detachSelf();
                 masRect[col][row+2].getLastChild().detachSelf();
                 scores += 500;
@@ -75,12 +75,12 @@ public class TopThreeLineRuby {
                 return true;
             }
         }
-        if(col!=0 && col!=1) {
-            if ((masRect[col][row].getLastChild().getTag() == masRect[col-1][row].getLastChild().getTag()) &&
-                    (masRect[col-1][row].getLastChild().getTag() == masRect[col-2][row].getLastChild().getTag())) {
+        if(col!=(MainActivity.countRectHeight-1) && col!=(MainActivity.countRectHeight-2)) {
+            if ((masRect[col][row].getLastChild().getTag() == masRect[col+1][row].getLastChild().getTag()) &&
+                    (masRect[col+1][row].getLastChild().getTag() == masRect[col+2][row].getLastChild().getTag())) {
                 masRect[col][row].getLastChild().detachSelf();
-                masRect[col-1][row].getLastChild().detachSelf();
-                masRect[col-2][row].getLastChild().detachSelf();
+                masRect[col+1][row].getLastChild().detachSelf();
+                masRect[col+2][row].getLastChild().detachSelf();
                 scores += 300;
                 bitmapText.setText("Scores: " + scores);
                 FillingEmptyCellsThree(col, row, masRect,0);
@@ -133,12 +133,12 @@ public class TopThreeLineRuby {
         switch(direction) {
             case 0:
                 entityArray.clear();
-                if((col-3)>=0) {
-                    for(int j=col-3;j>=0;j--){
+                if((col-1)>=0) {
+                    for(int j=col-1;j>=0;j--){
                         entityArray.add(rect[j][row].getLastChild());
                         rect[j][row].getLastChild().detachSelf();
                     }
-                    for (int i = col,k=0; i>2; i--) {
+                    for (int i = col+2,k=0; i>2; i--) {
                         rect[i][row].attachChild(entityArray.get(k));
                         k++;
                     }
@@ -225,16 +225,18 @@ public class TopThreeLineRuby {
                 }
                 break;
             case 4:
-                if((col-3)>=0) {
+                if((col-1)>=0) {
                     AllSpriteTwoLightInRect(isSprite, rect[col][row]);
                     entityArray.clear();
-                    for(int j=col-3;j>=0;j--){
+                    for(int j=col-1;j>=0;j--){
                         entityArray.add(rect[j][row].getLastChild());
                         rect[j][row].getLastChild().detachSelf();
                     }
-                    for (int i = col-1,k=0; i>1; i--) {
-                        rect[i][row].attachChild(entityArray.get(k));
-                        k++;
+                    for (int i = col+2,k=0; i>1; i--) {
+                        if(i!=col) {
+                            rect[i][row].attachChild(entityArray.get(k));
+                            k++;
+                        }
                     }
                     AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
                     AllSpriteInRect(MainActivity.randInt(1, 100), rect[1][row]);
@@ -298,16 +300,18 @@ public class TopThreeLineRuby {
                 }
                 break;
             case 6:
-                if ((col - 3) >= 0) {
+                if ((col - 1) >= 0) {
                     AllSpriteTwoLightInRect(isSprite, rect[col][row]);
                     entityArray.clear();
-                    for(int j=col-3;j>=0;j--){
+                    for(int j=col-1;j>=0;j--){
                         entityArray.add(rect[j][row].getLastChild());
                         rect[j][row].getLastChild().detachSelf();
                     }
-                    for (int i = col-1,k=0; i>1; i--) {
-                        rect[i][row].attachChild(entityArray.get(k));
-                        k++;
+                    for (int i = col+2,k=0; i>1; i--) {
+                        if(i!=col) {
+                            rect[i][row].attachChild(entityArray.get(k));
+                            k++;
+                        }
                     }
                     AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
                     AllSpriteInRect(MainActivity.randInt(1, 100), rect[1][row]);
