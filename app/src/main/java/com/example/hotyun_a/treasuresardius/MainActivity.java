@@ -3,6 +3,11 @@ package com.example.hotyun_a.treasuresardius;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+import com.example.hotyun_a.treasuresardius.ThreeRuby.BottomThreeLineRuby;
+import com.example.hotyun_a.treasuresardius.ThreeRuby.LeftThreeLineRuby;
+import com.example.hotyun_a.treasuresardius.ThreeRuby.RightThreeLineRuby;
+import com.example.hotyun_a.treasuresardius.ThreeRuby.TopThreeLineRuby;
+
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -43,7 +48,7 @@ public class MainActivity extends SimpleBaseGameActivity {
     public int lightHeight,lighWidth;
     int temp,start_position;
     Rectangle GridRect[][];
-    static ITextureRegion red_ruby,diamond,blue_ruby,coin,purple_ruby;
+    public static ITextureRegion red_ruby,diamond,blue_ruby,coin,purple_ruby;
     private BitmapTextureAtlas texLight;
     static public TiledTextureRegion regLight;
     private static int   SPR_COLUMN  = 8;
@@ -51,7 +56,7 @@ public class MainActivity extends SimpleBaseGameActivity {
     Text bitmapText;
     long scoreSum;
     Font font;
-    static int rectSize,rectTopMargin,rectBottomMargin,textBottomMargin,RectBetweenRect,textSize,textMarginLeft;
+    public static int rectSize,rectTopMargin,rectBottomMargin,textBottomMargin,RectBetweenRect,textSize,textMarginLeft;
     int i=0,j=0,k=0,m=0;
     Scene scene;
     @Override
@@ -140,8 +145,11 @@ public class MainActivity extends SimpleBaseGameActivity {
                                     if (x.equals(y)) {
                                         count++;
                                         GridRect[l][o].setColor(1, 1, 1);
-                                        if((l == col+1)&&(o == row)){
+                                        if((l == col+1)&&(o == row)){//top
                                             ChangeElement(GridRect[l][o], GridRect[col][row]);
+                                            BottomThreeLineRuby bottomThree=new BottomThreeLineRuby(scoreSum,col+1,row,getVertexBufferObjectManager());
+                                            bottomThree.checkLineThreeRubyBottom(bitmapText, GridRect);
+                                            scoreSum=bottomThree.getScore();
                                             TopThreeLineRuby topThree=new TopThreeLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
                                             topThree.checkLineThreeRubyTop(bitmapText,GridRect);
                                             scoreSum=topThree.getScore();
@@ -149,20 +157,29 @@ public class MainActivity extends SimpleBaseGameActivity {
                                         if((l == col-1)&&(o == row)){//bottom
                                             ChangeElement(GridRect[l][o], GridRect[col][row]);
                                             BottomThreeLineRuby bottomThree=new BottomThreeLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
-                                            bottomThree.checkLineThreeRubyBottom(bitmapText,GridRect);
+                                            bottomThree.checkLineThreeRubyBottom(bitmapText, GridRect);
                                             scoreSum=bottomThree.getScore();
+                                            TopThreeLineRuby topThree=new TopThreeLineRuby(scoreSum,col-1,row,getVertexBufferObjectManager());
+                                            topThree.checkLineThreeRubyTop(bitmapText, GridRect);
+                                            scoreSum=topThree.getScore();
                                         }
                                         if((o == row+1)&&(l == col)){//left
                                             ChangeElement(GridRect[l][o],GridRect[col][row]);
                                             LeftThreeLineRuby leftThree=new LeftThreeLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
                                             leftThree.checkLineThreeRubyLeft(bitmapText,GridRect);
                                             scoreSum=leftThree.getScore();
+                                            RightThreeLineRuby rightThree=new RightThreeLineRuby(scoreSum,col,row+1,getVertexBufferObjectManager());
+                                            rightThree.checkLineThreeRubyRight(bitmapText, GridRect);
+                                            scoreSum=rightThree.getScore();
                                         }
                                         if((o == row-1)&&(l == col)){//right
                                             ChangeElement(GridRect[l][o],GridRect[col][row]);
                                             RightThreeLineRuby rightThree=new RightThreeLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
                                             rightThree.checkLineThreeRubyRight(bitmapText,GridRect);
                                             scoreSum=rightThree.getScore();
+                                            LeftThreeLineRuby leftThree=new LeftThreeLineRuby(scoreSum,col,row-1,getVertexBufferObjectManager());
+                                            leftThree.checkLineThreeRubyLeft(bitmapText, GridRect);
+                                            scoreSum=leftThree.getScore();
                                         }
                                     }
                                 }
@@ -170,10 +187,7 @@ public class MainActivity extends SimpleBaseGameActivity {
                             if(count==0){
                                 GridRect[col][row].setColor(0, 0, 0);
                             }
-                            if(count==1){
-                                GridRect[col][row].setColor(1, 1, 1);
-                            }
-                            if(count>1){
+                            if((count>=1)){
                                 GridRect[col][row].setColor(1, 1, 1);
                             }
                         }
@@ -250,30 +264,6 @@ public class MainActivity extends SimpleBaseGameActivity {
         else{ System.out.println("else return 3");
             return 3;}
     }
-    public boolean DetermineNeighborRubyThree(Rectangle rect[][],int col, int row){
-        boolean bool=false;
-        if((col-2>0))
-            if(rect[col][row].getLastChild().getTag()==rect[col-1][row].getLastChild().getTag()&&
-                    rect[col-1][row].getLastChild().getTag()==rect[col-2][row].getLastChild().getTag())
-                bool=true;
-        if(row+2<(countRectWidth-1))
-            if(rect[col][row].getLastChild().getTag()==rect[col][row+1].getLastChild().getTag()&&
-                    rect[col][row+1].getLastChild().getTag()==rect[col][row+2].getLastChild().getTag())
-                bool=true;
-        if(row-2>0)
-            if(rect[col][row].getLastChild().getTag()==rect[col][row-1].getLastChild().getTag()&&
-                    rect[col][row-1].getLastChild().getTag()==rect[col][row-2].getLastChild().getTag())
-                bool=true;
-        if(row-1>0)
-            if(rect[col][row].getLastChild().getTag()==rect[col][row-1].getLastChild().getTag()&&
-                    rect[col][row-1].getLastChild().getTag()==rect[col][row+1].getLastChild().getTag())
-                bool=true;
-        if(row+1<countRectWidth)
-            if(rect[col][row].getLastChild().getTag()==rect[col][row-1].getLastChild().getTag()&&
-                    rect[col][row-1].getLastChild().getTag()==rect[col][row+1].getLastChild().getTag())
-                bool=true;
-        return bool;
-    }
     @Override
     public EngineOptions onCreateEngineOptions() {
         final DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -289,7 +279,6 @@ public class MainActivity extends SimpleBaseGameActivity {
     public boolean ScreenSize(DisplayMetrics dm){
         float density=dm.density;
         if (density >= 4.0) {
-
             lightningLocation="gfx/lightningXXXHDPI.png";
             lightHeight=512;
             lighWidth=200;
@@ -303,7 +292,6 @@ public class MainActivity extends SimpleBaseGameActivity {
             return true;
         }
         if (density >= 3.0) {
-
             lightningLocation="gfx/lightningXXHDPI.png";
             lightHeight=512;
             lighWidth=150;
@@ -317,7 +305,6 @@ public class MainActivity extends SimpleBaseGameActivity {
             return true;
         }
         if (density >= 2.0) {
-
             lightningLocation="gfx/lightningXHDPI.png";
             lightHeight=512;
             lighWidth=100;
@@ -331,7 +318,6 @@ public class MainActivity extends SimpleBaseGameActivity {
             return true;
         }
         if (density >= 1.5) {
-
             lightningLocation="gfx/lightningHDPI.png";
             lightHeight=256;
             lighWidth=70;
