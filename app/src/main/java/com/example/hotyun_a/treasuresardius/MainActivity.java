@@ -49,7 +49,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 
     public int CAMERA_WIDTH;
     public int CAMERA_HEIGHT;
-    public static int countRectHeight,countRectWidth;
+    public static int countRectHeight, countRectWidth;
     public String lightningLocation;
     public int lightHeight,lightWidth;
     int temp,start_position;
