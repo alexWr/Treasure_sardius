@@ -3,6 +3,12 @@ package com.example.hotyun_a.treasuresardius;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+import com.example.hotyun_a.treasuresardius.FiveRuby.BottomFiveLineRuby;
+import com.example.hotyun_a.treasuresardius.FiveRuby.TopFiveLineRuby;
+import com.example.hotyun_a.treasuresardius.FourRuby.BottomFourLineRuby;
+import com.example.hotyun_a.treasuresardius.FourRuby.LeftFourLineRuby;
+import com.example.hotyun_a.treasuresardius.FourRuby.RightFourLineRuby;
+import com.example.hotyun_a.treasuresardius.FourRuby.TopFourLineRuby;
 import com.example.hotyun_a.treasuresardius.ThreeRuby.BottomThreeLineRuby;
 import com.example.hotyun_a.treasuresardius.ThreeRuby.LeftThreeLineRuby;
 import com.example.hotyun_a.treasuresardius.ThreeRuby.RightThreeLineRuby;
@@ -45,10 +51,10 @@ public class MainActivity extends SimpleBaseGameActivity {
     public int CAMERA_HEIGHT;
     public static int countRectHeight,countRectWidth;
     public String lightningLocation;
-    public int lightHeight,lighWidth;
+    public int lightHeight,lightWidth;
     int temp,start_position;
     Rectangle GridRect[][];
-    public static ITextureRegion red_ruby,diamond,blue_ruby,coin,purple_ruby;
+    public static ITextureRegion red_ruby,diamond,blue_ruby,coin,purple_ruby,big_ruby;
     private BitmapTextureAtlas texLight;
     static public TiledTextureRegion regLight;
     private static int   SPR_COLUMN  = 8;
@@ -59,6 +65,7 @@ public class MainActivity extends SimpleBaseGameActivity {
     public static int rectSize,rectTopMargin,rectBottomMargin,textBottomMargin,RectBetweenRect,textSize,textMarginLeft;
     int i=0,j=0,k=0,m=0;
     Scene scene;
+    boolean result;
     @Override
     protected void onCreateResources() {
         try {
@@ -92,7 +99,13 @@ public class MainActivity extends SimpleBaseGameActivity {
                     return getAssets().open("gfx/Diamond-icon.png");
                 }
             });
-            texLight = new BitmapTextureAtlas(this.getTextureManager(), lightHeight, lighWidth, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+            ITexture bigRuby = new BitmapTexture(this.getTextureManager(), new IInputStreamOpener() {
+                @Override
+                public InputStream open() throws IOException {
+                    return getAssets().open("gfx/ruby_five.png");
+                }
+            });
+            texLight = new BitmapTextureAtlas(this.getTextureManager(), lightHeight, lightWidth, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
             regLight = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(texLight, this.getAssets(),
                     lightningLocation, 0, 0, SPR_COLUMN, SPR_ROWS);
             texLight.load();
@@ -101,11 +114,13 @@ public class MainActivity extends SimpleBaseGameActivity {
             purpleRubyTexture.load();
             coinTexture.load();
             diamondTexture.load();
+            bigRuby.load();
             this.red_ruby= TextureRegionFactory.extractFromTexture(redRubyTexture);
             this.blue_ruby=TextureRegionFactory.extractFromTexture(blueRubyTexture);
             this.purple_ruby=TextureRegionFactory.extractFromTexture(purpleRubyTexture);
             this.coin=TextureRegionFactory.extractFromTexture(coinTexture);
             this.diamond=TextureRegionFactory.extractFromTexture(diamondTexture);
+            this.big_ruby=TextureRegionFactory.extractFromTexture(bigRuby);
         }catch (IOException e) {
             Debug.e(e);
         }
@@ -147,39 +162,69 @@ public class MainActivity extends SimpleBaseGameActivity {
                                         GridRect[l][o].setColor(1, 1, 1);
                                         if((l == col+1)&&(o == row)){//top
                                             ChangeElement(GridRect[l][o], GridRect[col][row]);
-                                            BottomThreeLineRuby bottomThree=new BottomThreeLineRuby(scoreSum,col+1,row,getVertexBufferObjectManager());
-                                            bottomThree.checkLineThreeRubyBottom(bitmapText, GridRect);
-                                            scoreSum=bottomThree.getScore();
-                                            TopThreeLineRuby topThree=new TopThreeLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
-                                            topThree.checkLineThreeRubyTop(bitmapText,GridRect);
-                                            scoreSum=topThree.getScore();
+                                            TopFiveLineRuby topFive=new TopFiveLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
+                                            result=topFive.checkLineFiveRubyTop(bitmapText, GridRect);
+                                            scoreSum=topFive.getScore();
+                                            if(!result) {
+                                                TopFourLineRuby topFour = new TopFourLineRuby(scoreSum, col, row, getVertexBufferObjectManager());
+                                                result = topFour.checkLineFourRubyTop(bitmapText, GridRect);
+                                                scoreSum = topFour.getScore();
+                                                if (!result) {
+                                                    BottomThreeLineRuby bottomThree = new BottomThreeLineRuby(scoreSum, col + 1, row, getVertexBufferObjectManager());
+                                                    bottomThree.checkLineThreeRubyBottom(bitmapText, GridRect);
+                                                    scoreSum = bottomThree.getScore();
+                                                    TopThreeLineRuby topThree = new TopThreeLineRuby(scoreSum, col, row, getVertexBufferObjectManager());
+                                                    topThree.checkLineThreeRubyTop(bitmapText, GridRect);
+                                                    scoreSum = topThree.getScore();
+                                                }
+                                            }
                                         }
                                         if((l == col-1)&&(o == row)){//bottom
                                             ChangeElement(GridRect[l][o], GridRect[col][row]);
-                                            BottomThreeLineRuby bottomThree=new BottomThreeLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
-                                            bottomThree.checkLineThreeRubyBottom(bitmapText, GridRect);
-                                            scoreSum=bottomThree.getScore();
-                                            TopThreeLineRuby topThree=new TopThreeLineRuby(scoreSum,col-1,row,getVertexBufferObjectManager());
-                                            topThree.checkLineThreeRubyTop(bitmapText, GridRect);
-                                            scoreSum=topThree.getScore();
+                                            BottomFiveLineRuby bottomFive=new BottomFiveLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
+                                            result=bottomFive.checkLineFiveRubyBottom(bitmapText,GridRect);
+                                            scoreSum=bottomFive.getScore();
+                                            if(!result) {
+                                                BottomFourLineRuby bottomFour = new BottomFourLineRuby(scoreSum, col, row, getVertexBufferObjectManager());
+                                                result = bottomFour.checkLineFourRubyBottom(bitmapText, GridRect);
+                                                scoreSum = bottomFour.getScore();
+                                                if (!result) {
+                                                    BottomThreeLineRuby bottomThree = new BottomThreeLineRuby(scoreSum, col, row, getVertexBufferObjectManager());
+                                                    bottomThree.checkLineThreeRubyBottom(bitmapText, GridRect);
+                                                    scoreSum = bottomThree.getScore();
+                                                    TopThreeLineRuby topThree = new TopThreeLineRuby(scoreSum, col - 1, row, getVertexBufferObjectManager());
+                                                    topThree.checkLineThreeRubyTop(bitmapText, GridRect);
+                                                    scoreSum = topThree.getScore();
+                                                }
+                                            }
                                         }
                                         if((o == row+1)&&(l == col)){//left
                                             ChangeElement(GridRect[l][o],GridRect[col][row]);
-                                            LeftThreeLineRuby leftThree=new LeftThreeLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
-                                            leftThree.checkLineThreeRubyLeft(bitmapText,GridRect);
-                                            scoreSum=leftThree.getScore();
-                                            RightThreeLineRuby rightThree=new RightThreeLineRuby(scoreSum,col,row+1,getVertexBufferObjectManager());
-                                            rightThree.checkLineThreeRubyRight(bitmapText, GridRect);
-                                            scoreSum=rightThree.getScore();
+                                            LeftFourLineRuby leftFour=new LeftFourLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
+                                            result=leftFour.checkLineFourRubyLeft(bitmapText,GridRect);
+                                            scoreSum=leftFour.getScore();
+                                            if(!result) {
+                                                LeftThreeLineRuby leftThree = new LeftThreeLineRuby(scoreSum, col, row, getVertexBufferObjectManager());
+                                                leftThree.checkLineThreeRubyLeft(bitmapText, GridRect);
+                                                scoreSum = leftThree.getScore();
+                                                RightThreeLineRuby rightThree = new RightThreeLineRuby(scoreSum, col, row + 1, getVertexBufferObjectManager());
+                                                rightThree.checkLineThreeRubyRight(bitmapText, GridRect);
+                                                scoreSum = rightThree.getScore();
+                                            }
                                         }
                                         if((o == row-1)&&(l == col)){//right
                                             ChangeElement(GridRect[l][o],GridRect[col][row]);
-                                            RightThreeLineRuby rightThree=new RightThreeLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
-                                            rightThree.checkLineThreeRubyRight(bitmapText,GridRect);
-                                            scoreSum=rightThree.getScore();
-                                            LeftThreeLineRuby leftThree=new LeftThreeLineRuby(scoreSum,col,row-1,getVertexBufferObjectManager());
-                                            leftThree.checkLineThreeRubyLeft(bitmapText, GridRect);
-                                            scoreSum=leftThree.getScore();
+                                            RightFourLineRuby rightFour=new RightFourLineRuby(scoreSum,col,row,getVertexBufferObjectManager());
+                                            result=rightFour.checkLineFourRubyRight(bitmapText,GridRect);
+                                            scoreSum=rightFour.getScore();
+                                            if(!result) {
+                                                RightThreeLineRuby rightThree = new RightThreeLineRuby(scoreSum, col, row, getVertexBufferObjectManager());
+                                                rightThree.checkLineThreeRubyRight(bitmapText, GridRect);
+                                                scoreSum = rightThree.getScore();
+                                                LeftThreeLineRuby leftThree = new LeftThreeLineRuby(scoreSum, col, row - 1, getVertexBufferObjectManager());
+                                                leftThree.checkLineThreeRubyLeft(bitmapText, GridRect);
+                                                scoreSum = leftThree.getScore();
+                                            }
                                         }
                                     }
                                 }
@@ -281,7 +326,7 @@ public class MainActivity extends SimpleBaseGameActivity {
         if (density >= 4.0) {
             lightningLocation="gfx/lightningXXXHDPI.png";
             lightHeight=512;
-            lighWidth=200;
+            lightWidth=200;
             rectSize=200;
             rectTopMargin=180;
             rectBottomMargin=rectSize*3;
@@ -294,7 +339,7 @@ public class MainActivity extends SimpleBaseGameActivity {
         if (density >= 3.0) {
             lightningLocation="gfx/lightningXXHDPI.png";
             lightHeight=512;
-            lighWidth=150;
+            lightWidth=150;
             rectSize=150;
             rectTopMargin=130;
             rectBottomMargin=rectSize*3;
@@ -307,7 +352,7 @@ public class MainActivity extends SimpleBaseGameActivity {
         if (density >= 2.0) {
             lightningLocation="gfx/lightningXHDPI.png";
             lightHeight=512;
-            lighWidth=100;
+            lightWidth=100;
             rectSize=100;
             rectTopMargin=80;
             rectBottomMargin=rectSize*3;
@@ -320,7 +365,7 @@ public class MainActivity extends SimpleBaseGameActivity {
         if (density >= 1.5) {
             lightningLocation="gfx/lightningHDPI.png";
             lightHeight=256;
-            lighWidth=70;
+            lightWidth=70;
             rectSize=70;
             rectTopMargin=50;
             rectBottomMargin=70*3;

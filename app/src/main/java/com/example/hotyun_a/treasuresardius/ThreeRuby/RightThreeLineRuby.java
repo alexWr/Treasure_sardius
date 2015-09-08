@@ -46,7 +46,7 @@ public class RightThreeLineRuby {
                 return true;
             }
         }
-        if(row!=(MainActivity.countRectWidth-2)&&row!=(MainActivity.countRectWidth-1)&&col!=0&&col!=1&&col!=(MainActivity.countRectHeight-1)){
+        if(row!=(MainActivity.countRectWidth-2)&&row!=(MainActivity.countRectWidth-1)&&col!=0&&col!=(MainActivity.countRectHeight-1)){
             if ((masRect[col][row].getLastChild().getTag() == masRect[col][row+1].getLastChild().getTag()) &&
                     (masRect[col][row+1].getLastChild().getTag() == masRect[col][row+2].getLastChild().getTag())&&
                     (masRect[col][row].getLastChild().getTag() == masRect[col+1][row].getLastChild().getTag())&&
@@ -153,6 +153,7 @@ public class RightThreeLineRuby {
     public void FillingEmptyCellsThree(int col,int row,Rectangle rect[][], int direction){
         IEntity entity,entity1,entity2;
         ArrayList<IEntity> entityArray=new ArrayList<>();
+        boolean res=false,resS=false;
         switch(direction) {
             case 0:
                 entityArray.clear();
@@ -244,21 +245,23 @@ public class RightThreeLineRuby {
             case 4:
                 entityArray.clear();
                 if((col-2)>=0) {
-                    AllSpriteTwoLightInRect(isSprite, rect[col][row]);
+                    res=AllSpriteTwoLightInRect(isSprite, rect[col][row]);
                     for(int j=col-2;j>=0;j--){
                         entityArray.add(rect[j][row].getLastChild());
                         rect[j][row].getLastChild().detachSelf();
                     }
-                    rect[col+1][row].attachChild(entityArray.get(0));
-                    for (int i = col-1,k=1; i>2; i--) {
-                        rect[i][row].attachChild(entityArray.get(k));
-                        k++;
+                    for (int i = col+1,k=0; i>2; i--) {
+                        if(i!=col) {
+                            rect[i][row].attachChild(entityArray.get(k));
+                            k++;
+                        }
                     }
-                    AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
-                    AllSpriteInRect(MainActivity.randInt(1,100),rect[1][row]);
-                    AllSpriteInRect(MainActivity.randInt(1, 100), rect[2][row]);
+                    resS=AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
+                    AllSpriteInRect(MainActivity.randInt(1,100),rect[2][row]);
                 }
                 if((col-1)>=0) {
+                    if(!res)
+                        AllSpriteTwoLightInRect(isSprite, rect[col][row]);
                     for (int i = col-1,k=col; i >= 0; i--) {
                         entity1=rect[i][row+1].getLastChild();
                         entity2=rect[i][row+2].getLastChild();
@@ -268,13 +271,17 @@ public class RightThreeLineRuby {
                         rect[k][row+2].attachChild(entity2);
                         k=i;
                     }
+                    if(!resS){
+                        AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
+                        AllSpriteInRect(MainActivity.randInt(1,100),rect[2][row]);
+                    }
                     AllSpriteInRect(MainActivity.randInt(1,100),rect[0][row+1]);
                     AllSpriteInRect(MainActivity.randInt(1,100),rect[0][row+2]);
                 }
                 else{
                     AllSpriteTwoLightInRect(isSprite,rect[col][row]);
                     AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
-                    AllSpriteInRect(MainActivity.randInt(1,100),rect[1][row]);
+                    AllSpriteInRect(MainActivity.randInt(1,100),rect[2][row]);
                     AllSpriteInRect(MainActivity.randInt(1,100),rect[0][row+1]);
                     AllSpriteInRect(MainActivity.randInt(1,100),rect[0][row+2]);
                 }
@@ -282,7 +289,7 @@ public class RightThreeLineRuby {
             case 5:
                 entityArray.clear();
                 if ((col - 3) >= 0) {
-                    AllSpriteTwoLightInRect(isSprite, rect[col][row]);
+                    res=AllSpriteTwoLightInRect(isSprite, rect[col][row]);
                     for(int j=col-3;j>=0;j--){
                         entityArray.add(rect[j][row].getLastChild());
                         rect[j][row].getLastChild().detachSelf();
@@ -291,11 +298,12 @@ public class RightThreeLineRuby {
                         rect[i][row].attachChild(entityArray.get(k));
                         k++;
                     }
-                    AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
+                    resS=AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
                     AllSpriteInRect(MainActivity.randInt(1,100),rect[1][row]);
-                    AllSpriteInRect(MainActivity.randInt(1,100),rect[2][row]);
                 }
                 if((col-1)>=0) {
+                    if(!res)
+                        AllSpriteTwoLightInRect(isSprite, rect[col][row]);
                     for (int i = col-1,k=col; i >= 0; i--) {
                         entity1=rect[i][row+1].getLastChild();
                         entity2=rect[i][row+2].getLastChild();
@@ -304,6 +312,10 @@ public class RightThreeLineRuby {
                         rect[k][row+1].attachChild(entity1);
                         rect[k][row+2].attachChild(entity2);
                         k=i;
+                    }
+                    if(!resS){
+                        AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
+                        AllSpriteInRect(MainActivity.randInt(1,100),rect[2][row]);
                     }
                     AllSpriteInRect(MainActivity.randInt(1,100),rect[0][row+1]);
                     AllSpriteInRect(MainActivity.randInt(1,100),rect[0][row+2]);
@@ -319,7 +331,7 @@ public class RightThreeLineRuby {
             case 6:
                 entityArray.clear();
                 if((col-1)>=0) {
-                    AllSpriteTwoLightInRect(isSprite, rect[col][row]);
+                    res=AllSpriteTwoLightInRect(isSprite, rect[col][row]);
                     for(int j=col-1;j>=0;j--){
                         entityArray.add(rect[j][row].getLastChild());
                         rect[j][row].getLastChild().detachSelf();
@@ -330,11 +342,12 @@ public class RightThreeLineRuby {
                             rect[i][row].attachChild(entityArray.get(k));
                             k++;
                     }
-                    AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
+                    resS=AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
                     AllSpriteInRect(MainActivity.randInt(1, 100), rect[1][row]);
-                    AllSpriteInRect(MainActivity.randInt(1, 100), rect[2][row]);
                 }
                 if((col-1)>=0) {
+                    if(!res)
+                        AllSpriteTwoLightInRect(isSprite, rect[col][row]);
                     for (int i = col-1,k=col; i >= 0; i--) {
                         entity1=rect[i][row+1].getLastChild();
                         entity2=rect[i][row+2].getLastChild();
@@ -343,6 +356,10 @@ public class RightThreeLineRuby {
                         rect[k][row+1].attachChild(entity1);
                         rect[k][row+2].attachChild(entity2);
                         k=i;
+                    }
+                    if(!resS){
+                        AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
+                        AllSpriteInRect(MainActivity.randInt(1,100),rect[1][row]);
                     }
                     AllSpriteInRect(MainActivity.randInt(1,100),rect[0][row+1]);
                     AllSpriteInRect(MainActivity.randInt(1,100),rect[0][row+2]);
@@ -370,7 +387,7 @@ public class RightThreeLineRuby {
                         }
                     }
                     AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
-                    AllSpriteInRect(MainActivity.randInt(1,100),rect[1][row]);
+                    AllSpriteInRect(MainActivity.randInt(1, 100), rect[1][row]);
                     AllSpriteInRect(MainActivity.randInt(1, 100), rect[2][row]);
                     AllSpriteInRect(MainActivity.randInt(1, 100), rect[3][row]);
                 }
@@ -392,7 +409,7 @@ public class RightThreeLineRuby {
                     AllSpriteInRect(MainActivity.randInt(1, 100), rect[0][row]);
                     AllSpriteInRect(MainActivity.randInt(1, 100), rect[1][row]);
                     AllSpriteInRect(MainActivity.randInt(1, 100), rect[3][row]);
-                    AllSpriteInRect(MainActivity.randInt(1,100),rect[4][row]);
+                    AllSpriteInRect(MainActivity.randInt(1, 100), rect[4][row]);
                     AllSpriteInRect(MainActivity.randInt(1,100),rect[0][row+1]);
                     AllSpriteInRect(MainActivity.randInt(1,100),rect[0][row+2]);
                 }
@@ -405,7 +422,7 @@ public class RightThreeLineRuby {
         sprite.setWidth(MainActivity.rectSize);
         return sprite;
     }
-    public void AllSpriteInRect(int num,Rectangle rect){
+    public boolean AllSpriteInRect(int num,Rectangle rect){
         Sprite sprite;
         switch(num){
             case 1:
@@ -433,8 +450,9 @@ public class RightThreeLineRuby {
                 sprite.setTag(5);
         }
         rect.attachChild(sprite);
+        return true;
     }
-    public void AllSpriteTwoLightInRect(int num,Rectangle rect){
+    public boolean AllSpriteTwoLightInRect(int num,Rectangle rect){
         Sprite sprite;
         AnimatedSprite aSprite,bSprite;
         switch(num){
@@ -505,6 +523,7 @@ public class RightThreeLineRuby {
                 aSprite.animate(100);
         }
         rect.attachChild(sprite);
+        return true;
     }
     public long getScore(){
         return this.scores;
